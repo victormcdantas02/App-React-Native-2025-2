@@ -5,7 +5,7 @@ export default function SobreScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoSection}>
-          <Text style={styles.appName}>Suas Tarefas</Text>
+          <Text style={styles.appName}>Minhas Tarefas</Text>
         </View>
 
         <View style={styles.descriptionBox}>
