@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "parse": "^7.0.2",
     "zustand": "^5.0.8"
   }
 }
