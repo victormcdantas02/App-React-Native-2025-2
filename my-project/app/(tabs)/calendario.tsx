@@ -141,7 +141,6 @@ export default function CalendarioScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header com navegação */}
       <View style={styles.header}>
         <TouchableOpacity onPress={previousMonth} style={styles.navButton}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
