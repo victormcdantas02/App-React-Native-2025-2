@@ -1,33 +1,70 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Text } from 'react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: '#3b82f6',
+        tabBarInactiveTintColor: '#6b7280',
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopWidth: 1,
+          borderTopColor: '#e5e7eb',
+          paddingBottom: 5,
+          paddingTop: 5,
+          height: 60,
+        },
+        headerStyle: {
+          backgroundColor: '#3b82f6',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Tarefas',
+          tabBarLabel: 'Início',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24, color }}>📝</Text>
+          ),
         }}
       />
+      
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: 'Calendário',
+          tabBarLabel: 'Calendário',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24, color }}>📅</Text>
+          ),
+        }}
+      />
+      
+      <Tabs.Screen
+        name="add"
+        options={{
+          title: 'Nova Tarefa',
+          tabBarLabel: 'Adicionar',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24, color }}>➕</Text>
+          ),
+        }}
+      />
+      
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Configurações',
+          tabBarLabel: 'Config',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24, color }}>⚙️</Text>
+          ),
         }}
       />
     </Tabs>
