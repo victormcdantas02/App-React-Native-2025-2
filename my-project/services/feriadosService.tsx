@@ -27,7 +27,7 @@ export const feriadosService = {
       return feriados;
     } catch (error) {
       console.error('Erro ao buscar feriados:', error);
-      throw error;
+      return []; // Retorna array vazio em caso de erro
     }
   },
 
