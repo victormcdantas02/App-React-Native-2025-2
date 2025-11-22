@@ -11,9 +11,6 @@ export default function TabLayout() {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,
           borderTopColor: '#e5e7eb',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
         },
         headerStyle: {
           backgroundColor: '#3b82f6',
@@ -27,43 +24,36 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tasks"
+        options={{
           title: 'Tarefas',
-          tabBarLabel: 'Início',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+            <Ionicons name="list" size={size} color={color} />
           ),
         }}
       />
-      
       <Tabs.Screen
-        name="calendar"
+        name="profile"
         options={{
-          title: 'Calendário',
-          tabBarLabel: 'Calendário',
+          title: 'Perfil',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+            <Ionicons name="person" size={size} color={color} />
           ),
         }}
       />
-      
       <Tabs.Screen
-        name="add"
+        name="about"
         options={{
-          title: 'Nova Tarefa',
-          tabBarLabel: 'Adicionar',
+          title: 'Sobre',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="add-circle-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Configurações',
-          tabBarLabel: 'Config',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+            <Ionicons name="information-circle" size={size} color={color} />
           ),
         }}
       />
