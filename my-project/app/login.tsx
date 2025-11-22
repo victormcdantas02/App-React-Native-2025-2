@@ -3,7 +3,6 @@ import { Link, router } from 'expo-router';
 
 export default function Login() {
   const handleLogin = () => {
-    // Lógica de autenticação
     router.replace('/(tabs)');
   };
 
