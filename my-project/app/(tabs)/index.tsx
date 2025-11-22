@@ -1,98 +1,197 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Pressable, ScrollView } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+interface Todo {
+  id: string;
+  text: string;
+  data: Date;
+  isCompleted: boolean;
+}
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [todos, setTodos] = useState<Todo[]>([
+    { id: '1', text: 'Exemplo de tarefa', data: new Date(), isCompleted: false },
+  ]);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const filteredTodos = todos.filter(todo => {
+    if (filter === 'pending') return !todo.isCompleted;
+    if (filter === 'completed') return todo.isCompleted;
+    return true;
+  });
+
+  const toggleTodo = (id: string) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
+    ));
+  };
+
+  const deleteTodo = (id: string) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.filterContainer}>
+        <Pressable 
+          style={[styles.filterBtn, filter === 'all' && styles.filterBtnActive]}
+          onPress={() => setFilter('all')}
+        >
+          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
+            Todas ({todos.length})
+          </Text>
+        </Pressable>
+        
+        <Pressable 
+          style={[styles.filterBtn, filter === 'pending' && styles.filterBtnActive]}
+          onPress={() => setFilter('pending')}
+        >
+          <Text style={[styles.filterText, filter === 'pending' && styles.filterTextActive]}>
+            Pendentes ({todos.filter(t => !t.isCompleted).length})
+          </Text>
+        </Pressable>
+        
+        <Pressable 
+          style={[styles.filterBtn, filter === 'completed' && styles.filterBtnActive]}
+          onPress={() => setFilter('completed')}
+        >
+          <Text style={[styles.filterText, filter === 'completed' && styles.filterTextActive]}>
+            Concluídas ({todos.filter(t => t.isCompleted).length})
+          </Text>
+        </Pressable>
+      </View>
+
+      <FlatList
+        data={filteredTodos}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Nenhuma tarefa encontrada</Text>
+        }
+        renderItem={({ item }) => (
+          <View style={styles.todoItem}>
+            <Pressable 
+              style={styles.todoContent}
+              onPress={() => toggleTodo(item.id)}
+            >
+              <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
+                {item.isCompleted && <Text style={styles.checkmark}>✓</Text>}
+              </View>
+              <View style={styles.todoTextContainer}>
+                <Text style={[styles.todoText, item.isCompleted && styles.todoTextCompleted]}>
+                  {item.text}
+                </Text>
+                <Text style={styles.todoDate}>
+                  {item.data.toLocaleDateString('pt-BR')}
+                </Text>
+              </View>
+            </Pressable>
+            <Pressable 
+              style={styles.deleteBtn}
+              onPress={() => deleteTodo(item.id)}
+            >
+              <Text style={styles.deleteText}>🗑️</Text>
+            </Pressable>
+          </View>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  filterContainer: {
     flexDirection: 'row',
+    padding: 16,
+    gap: 8,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  filterBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    alignItems: 'center',
+  },
+  filterBtnActive: {
+    backgroundColor: '#3b82f6',
+  },
+  filterText: {
+    color: '#1f2937',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  filterTextActive: {
+    color: '#fff',
+  },
+  list: {
+    padding: 16,
+    gap: 8,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#6b7280',
+    marginTop: 32,
+  },
+  todoItem: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 16,
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  todoContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#3b82f6',
+  },
+  checkmark: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  todoTextContainer: {
+    flex: 1,
+  },
+  todoText: {
+    color: '#1f2937',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  todoTextCompleted: {
+    textDecorationLine: 'line-through',
+    color: '#6b7280',
+  },
+  todoDate: {
+    color: '#6b7280',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  deleteBtn: {
+    padding: 8,
+  },
+  deleteText: {
+    fontSize: 20,
   },
 });

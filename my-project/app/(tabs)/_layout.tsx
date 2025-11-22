@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
@@ -29,8 +29,8 @@ export default function TabLayout() {
         options={{
           title: 'Tarefas',
           tabBarLabel: 'Início',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 24, color }}>📝</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -40,8 +40,8 @@ export default function TabLayout() {
         options={{
           title: 'Calendário',
           tabBarLabel: 'Calendário',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 24, color }}>📅</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
@@ -51,8 +51,8 @@ export default function TabLayout() {
         options={{
           title: 'Nova Tarefa',
           tabBarLabel: 'Adicionar',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 24, color }}>➕</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle-outline" size={size} color={color} />
           ),
         }}
       />
@@ -62,8 +62,8 @@ export default function TabLayout() {
         options={{
           title: 'Configurações',
           tabBarLabel: 'Config',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 24, color }}>⚙️</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings-outline" size={size} color={color} />
           ),
         }}
       />
