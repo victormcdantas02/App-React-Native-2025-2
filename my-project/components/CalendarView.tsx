@@ -1,6 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radii, spacing } from "../styles/theme";
+
+const colors = {
+  card: "#ffffff",
+  accent: "#6366F1",
+  text: "#111827",
+  muted: "#6B7280",
+  border: "#E5E7EB",
+  success: "#10B981",
+  warning: "#F59E0B",
+};
+
+const radii = {
+  sm: 6,
+  md: 10,
+};
+
+const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+};
+
 import { feriadosService } from "../services/feriadosService";
 
 const monthNames = [
@@ -36,7 +59,7 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
   const [viewDate, setViewDate] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
   );
-  const [feriados, setFeriados] = useState([]);
+  const [feriados, setFeriados] = useState<any[]>([]);
   const [loadingFeriados, setLoadingFeriados] = useState(false);
 
   useEffect(() => {

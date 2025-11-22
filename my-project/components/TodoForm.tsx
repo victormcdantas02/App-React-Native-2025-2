@@ -1,6 +1,24 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { format } from "date-fns";
-import { colors, radii, spacing } from "../styles/theme";
+
+const colors = {
+  card: "#ffffff",
+  text: "#0f172a",
+  muted: "#64748b",
+  success: "#16a34a",
+  error: "#ef4444",
+};
+
+const radii = {
+  md: 8,
+  sm: 6,
+};
+
+const spacing = {
+  md: 12,
+  xs: 6,
+  sm: 8,
+};
 
 const formatDate = (date: any) => {
   if (!date) return "";
