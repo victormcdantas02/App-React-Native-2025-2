@@ -1,26 +1,40 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function SettingsScreen() {
+export default function Profile() {
+  const handleLogout = () => {
+    Alert.alert(
+      'Sair',
+      'Tem certeza que deseja sair?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: () => router.replace('/login'),
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Configurações</Text>
-        
-        <Pressable style={styles.item}>
-          <Text style={styles.itemText}>Notificações</Text>
-          <Text style={styles.itemArrow}>›</Text>
-        </Pressable>
-        
-        <Pressable style={styles.item}>
-          <Text style={styles.itemText}>Tema</Text>
-          <Text style={styles.itemArrow}>›</Text>
-        </Pressable>
-        
-        <Pressable style={styles.item}>
-          <Text style={styles.itemText}>Sobre</Text>
-          <Text style={styles.itemArrow}>›</Text>
-        </Pressable>
+      <View style={styles.header}>
+        <View style={styles.avatar}>
+          <Ionicons name="person" size={60} color="#007AFF" />
+        </View>
+        <Text style={styles.name}>Usuário</Text>
+        <Text style={styles.email}>usuario@email.com</Text>
       </View>
+
+      <TouchableOpacity 
+        style={styles.logoutButton} 
+        onPress={handleLogout}
+      >
+        <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+        <Text style={styles.logoutText}>Sair da Conta</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -29,35 +43,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
-    padding: 24,
   },
-  section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1f2937',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  item: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  header: {
+    backgroundColor: '#fff',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    paddingVertical: 60,
+    paddingTop: 100,
   },
-  itemText: {
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#E3F2FD',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  name: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  email: {
     fontSize: 16,
-    color: '#1f2937',
+    color: '#666',
   },
-  itemArrow: {
-    fontSize: 24,
-    color: '#6b7280',
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    marginHorizontal: 20,
+    marginTop: 40,
+    padding: 18,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#FF3B30',
+  },
+  logoutText: {
+    color: '#FF3B30',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 10,
   },
 });

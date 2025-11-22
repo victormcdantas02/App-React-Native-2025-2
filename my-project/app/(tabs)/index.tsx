@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Todo {
   id: string;
@@ -8,9 +9,11 @@ interface Todo {
   isCompleted: boolean;
 }
 
-export default function HomeScreen() {
+// Componente HomeScreen (suas tarefas)
+function HomeScreen() {
   const [todos, setTodos] = useState<Todo[]>([
     { id: '1', text: 'Exemplo de tarefa', data: new Date(), isCompleted: false },
+    { id: '2', text: 'Tarefa concluída', data: new Date(), isCompleted: true },
   ]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
@@ -32,6 +35,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Ionicons name="checkmark-done-circle" size={40} color="#3b82f6" />
+        <Text style={styles.headerTitle}>Suas Tarefas</Text>
+      </View>
+
       <View style={styles.filterContainer}>
         <Pressable 
           style={[styles.filterBtn, filter === 'all' && styles.filterBtnActive]}
@@ -66,7 +74,18 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhuma tarefa encontrada</Text>
+          <View style={styles.emptyContainer}>
+            <Ionicons name="checkmark-circle-outline" size={60} color="#d1d5db" />
+            <Text style={styles.emptyText}>Nenhuma tarefa encontrada</Text>
+            <Text style={styles.emptySubtext}>
+              {filter === 'pending' 
+                ? 'Todas as tarefas estão concluídas!' 
+                : filter === 'completed' 
+                ? 'Nenhuma tarefa concluída ainda'
+                : 'Adicione sua primeira tarefa'
+              }
+            </Text>
+          </View>
         }
         renderItem={({ item }) => (
           <View style={styles.todoItem}>
@@ -90,7 +109,7 @@ export default function HomeScreen() {
               style={styles.deleteBtn}
               onPress={() => deleteTodo(item.id)}
             >
-              <Text style={styles.deleteText}>🗑️</Text>
+              <Ionicons name="trash-outline" size={20} color="#ef4444" />
             </Pressable>
           </View>
         )}
@@ -99,10 +118,70 @@ export default function HomeScreen() {
   );
 }
 
+// Componente About (sobre o app)
+function About() {
+  return (
+    <ScrollView contentContainerStyle={aboutStyles.container}>
+      <View style={aboutStyles.header}>
+        <Ionicons name="checkmark-done-circle" size={80} color="#007AFF" />
+        <Text style={aboutStyles.title}>Suas Tarefas</Text>
+      </View>
+
+      <Text style={aboutStyles.description}>
+        Um aplicativo com uma proposta clássica e eficaz: Nele você poderá 
+        deixar suas atividades diárias organizadas, uma versão nova para sua agenda!
+      </Text>
+
+      <View style={aboutStyles.divider} />
+
+      <View style={aboutStyles.info}>
+        <Text style={aboutStyles.infoText}>📱 Versão 1.0.0</Text>
+        <Text style={aboutStyles.infoText}>⚛️ React Native</Text>
+        <Text style={aboutStyles.infoText}>🚀 Expo Router</Text>
+      </View>
+
+      <View style={aboutStyles.features}>
+        <Text style={aboutStyles.featuresTitle}>Funcionalidades:</Text>
+        <View style={aboutStyles.featureItem}>
+          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+          <Text style={aboutStyles.featureText}>Adicionar novas tarefas</Text>
+        </View>
+        <View style={aboutStyles.featureItem}>
+          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+          <Text style={aboutStyles.featureText}>Marcar como concluídas</Text>
+        </View>
+        <View style={aboutStyles.featureItem}>
+          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+          <Text style={aboutStyles.featureText}>Filtrar por status</Text>
+        </View>
+        <View style={aboutStyles.featureItem}>
+          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+          <Text style={aboutStyles.featureText}>Excluir tarefas</Text>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
+
+// Estilos do HomeScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    gap: 12,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1f2937',
   },
   filterContainer: {
     flexDirection: 'row',
@@ -134,11 +213,25 @@ const styles = StyleSheet.create({
   list: {
     padding: 16,
     gap: 8,
+    flexGrow: 1,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
   },
   emptyText: {
     textAlign: 'center',
     color: '#6b7280',
-    marginTop: 32,
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    textAlign: 'center',
+    color: '#9ca3af',
+    fontSize: 14,
+    marginTop: 8,
   },
   todoItem: {
     flexDirection: 'row',
@@ -147,6 +240,11 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   todoContent: {
     flex: 1,
@@ -191,7 +289,70 @@ const styles = StyleSheet.create({
   deleteBtn: {
     padding: 8,
   },
-  deleteText: {
-    fontSize: 20,
+});
+
+// Estilos do About
+const aboutStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 60,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 15,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  divider: {
+    width: '80%',
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginVertical: 20,
+  },
+  info: {
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 30,
+  },
+  infoText: {
+    fontSize: 15,
+    color: '#666',
+  },
+  features: {
+    width: '100%',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+  },
+  featuresTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  featureText: {
+    fontSize: 15,
+    color: '#666',
   },
 });
+
+export { HomeScreen, About };
