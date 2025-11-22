@@ -1,8 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function Profile() {
+  const user = useAuthStore((state) => state.user);
+  const signOut = useAuthStore((state) => state.signOut);
+
   const handleLogout = () => {
     Alert.alert(
       'Sair',
@@ -12,7 +16,14 @@ export default function Profile() {
         {
           text: 'Sair',
           style: 'destructive',
-          onPress: () => router.replace('/login'),
+          onPress: async () => {
+            try {
+              await signOut();
+              router.replace('/login');
+            } catch (error: any) {
+              Alert.alert('Erro ao sair', error.message);
+            }
+          },
         },
       ]
     );
@@ -24,8 +35,8 @@ export default function Profile() {
         <View style={styles.avatar}>
           <Ionicons name="person" size={60} color="#007AFF" />
         </View>
-        <Text style={styles.name}>Usuário</Text>
-        <Text style={styles.email}>usuario@email.com</Text>
+        <Text style={styles.name}>{user?.name || user?.username || 'Usuário'}</Text>
+        <Text style={styles.email}>{user?.email || 'email@exemplo.com'}</Text>
       </View>
 
       <TouchableOpacity 
