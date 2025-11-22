@@ -1,358 +1,311 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface Todo {
-  id: string;
-  text: string;
-  data: Date;
-  isCompleted: boolean;
-}
+export default function HomeScreen() {
+  const [userName, setUserName] = useState('Usuário');
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-// Componente HomeScreen (suas tarefas)
-function HomeScreen() {
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: '1', text: 'Exemplo de tarefa', data: new Date(), isCompleted: false },
-    { id: '2', text: 'Tarefa concluída', data: new Date(), isCompleted: true },
-  ]);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  useEffect(() => {
+    loadUserName();
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const filteredTodos = todos.filter(todo => {
-    if (filter === 'pending') return !todo.isCompleted;
-    if (filter === 'completed') return todo.isCompleted;
-    return true;
-  });
-
-  const toggleTodo = (id: string) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
-    ));
+  const loadUserName = async () => {
+    try {
+      const name = await AsyncStorage.getItem('userName');
+      if (name) setUserName(name.split(' ')[0]); // Primeiro nome
+    } catch (error) {
+      console.error('Erro ao carregar nome:', error);
+    }
   };
 
-  const deleteTodo = (id: string) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
+    return 'Boa noite';
+  };
+
+  const getFormattedDate = () => {
+    return currentTime.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Ionicons name="checkmark-done-circle" size={40} color="#3b82f6" />
-        <Text style={styles.headerTitle}>Suas Tarefas</Text>
-      </View>
-
-      <View style={styles.filterContainer}>
-        <Pressable 
-          style={[styles.filterBtn, filter === 'all' && styles.filterBtnActive]}
-          onPress={() => setFilter('all')}
-        >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
-            Todas ({todos.length})
-          </Text>
-        </Pressable>
-        
-        <Pressable 
-          style={[styles.filterBtn, filter === 'pending' && styles.filterBtnActive]}
-          onPress={() => setFilter('pending')}
-        >
-          <Text style={[styles.filterText, filter === 'pending' && styles.filterTextActive]}>
-            Pendentes ({todos.filter(t => !t.isCompleted).length})
-          </Text>
-        </Pressable>
-        
-        <Pressable 
-          style={[styles.filterBtn, filter === 'completed' && styles.filterBtnActive]}
-          onPress={() => setFilter('completed')}
-        >
-          <Text style={[styles.filterText, filter === 'completed' && styles.filterTextActive]}>
-            Concluídas ({todos.filter(t => t.isCompleted).length})
-          </Text>
-        </Pressable>
-      </View>
-
-      <FlatList
-        data={filteredTodos}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="checkmark-circle-outline" size={60} color="#d1d5db" />
-            <Text style={styles.emptyText}>Nenhuma tarefa encontrada</Text>
-            <Text style={styles.emptySubtext}>
-              {filter === 'pending' 
-                ? 'Todas as tarefas estão concluídas!' 
-                : filter === 'completed' 
-                ? 'Nenhuma tarefa concluída ainda'
-                : 'Adicione sua primeira tarefa'
-              }
-            </Text>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Header com saudação */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>{getGreeting()}, {userName}! 👋</Text>
+            <Text style={styles.date}>{getFormattedDate()}</Text>
           </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.todoItem}>
-            <Pressable 
-              style={styles.todoContent}
-              onPress={() => toggleTodo(item.id)}
-            >
-              <View style={[styles.checkbox, item.isCompleted && styles.checkboxChecked]}>
-                {item.isCompleted && <Text style={styles.checkmark}>✓</Text>}
-              </View>
-              <View style={styles.todoTextContainer}>
-                <Text style={[styles.todoText, item.isCompleted && styles.todoTextCompleted]}>
-                  {item.text}
-                </Text>
-                <Text style={styles.todoDate}>
-                  {item.data.toLocaleDateString('pt-BR')}
-                </Text>
-              </View>
-            </Pressable>
-            <Pressable 
-              style={styles.deleteBtn}
-              onPress={() => deleteTodo(item.id)}
-            >
-              <Ionicons name="trash-outline" size={20} color="#ef4444" />
-            </Pressable>
+        </View>
+
+        {/* Cards de Ação Rápida */}
+        <View style={styles.quickActionsContainer}>
+          <Text style={styles.sectionTitle}>Acesso Rápido</Text>
+          
+          <View style={styles.quickActionsGrid}>
+            <QuickActionCard
+              icon="checkmark-circle"
+              iconColor="#3b82f6"
+              title="Tarefas"
+              subtitle="Gerenciar tarefas"
+              onPress={() => router.push('/(tabs)/tasks')}
+            />
+            <QuickActionCard
+              icon="calendar"
+              iconColor="#8b5cf6"
+              title="Calendário"
+              subtitle="Ver agenda"
+              onPress={() => router.push('/(tabs)/calendar')}
+            />
           </View>
-        )}
-      />
+
+          <View style={styles.quickActionsGrid}>
+            <QuickActionCard
+              icon="person"
+              iconColor="#10b981"
+              title="Perfil"
+              subtitle="Configurações"
+              onPress={() => router.push('/(tabs)/profile')}
+            />
+            <QuickActionCard
+              icon="information-circle"
+              iconColor="#f59e0b"
+              title="Sobre"
+              subtitle="Informações do app"
+              onPress={() => router.push('/about')}
+            />
+          </View>
+        </View>
+
+        {/* Resumo/Estatísticas */}
+        <View style={styles.statsContainer}>
+          <Text style={styles.sectionTitle}>Resumo</Text>
+          
+          <View style={styles.statsGrid}>
+            <StatCard
+              icon="checkmark-done"
+              iconColor="#10b981"
+              value="0"
+              label="Concluídas"
+              backgroundColor="#ecfdf5"
+            />
+            <StatCard
+              icon="time"
+              iconColor="#f59e0b"
+              value="0"
+              label="Pendentes"
+              backgroundColor="#fffbeb"
+            />
+            <StatCard
+              icon="calendar"
+              iconColor="#8b5cf6"
+              value="0"
+              label="Hoje"
+              backgroundColor="#f5f3ff"
+            />
+          </View>
+        </View>
+
+        {/* Dicas ou Mensagem Motivacional */}
+        <View style={styles.tipContainer}>
+          <View style={styles.tipHeader}>
+            <Ionicons name="bulb" size={24} color="#f59e0b" />
+            <Text style={styles.tipTitle}>Dica do dia</Text>
+          </View>
+          <Text style={styles.tipText}>
+            Organize suas tarefas por prioridade e comece pelo mais importante!
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// Componente de Card de Ação Rápida
+interface QuickActionCardProps {
+  icon: any;
+  iconColor: string;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+}
+
+function QuickActionCard({ icon, iconColor, title, subtitle, onPress }: QuickActionCardProps) {
+  return (
+    <Pressable 
+      style={({ pressed }) => [
+        styles.quickActionCard,
+        pressed && styles.quickActionCardPressed
+      ]}
+      onPress={onPress}
+    >
+      <View style={[styles.quickActionIcon, { backgroundColor: iconColor + '20' }]}>
+        <Ionicons name={icon} size={28} color={iconColor} />
+      </View>
+      <View style={styles.quickActionText}>
+        <Text style={styles.quickActionTitle}>{title}</Text>
+        <Text style={styles.quickActionSubtitle}>{subtitle}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+    </Pressable>
+  );
+}
+
+// Componente de Card de Estatística
+interface StatCardProps {
+  icon: any;
+  iconColor: string;
+  value: string;
+  label: string;
+  backgroundColor: string;
+}
+
+function StatCard({ icon, iconColor, value, label, backgroundColor }: StatCardProps) {
+  return (
+    <View style={[styles.statCard, { backgroundColor }]}>
+      <Ionicons name={icon} size={24} color={iconColor} />
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
 }
 
-// Componente About (sobre o app)
-function About() {
-  return (
-    <ScrollView contentContainerStyle={aboutStyles.container}>
-      <View style={aboutStyles.header}>
-        <Ionicons name="checkmark-done-circle" size={80} color="#007AFF" />
-        <Text style={aboutStyles.title}>Suas Tarefas</Text>
-      </View>
-
-      <Text style={aboutStyles.description}>
-        Um aplicativo com uma proposta clássica e eficaz: Nele você poderá 
-        deixar suas atividades diárias organizadas, uma versão nova para sua agenda!
-      </Text>
-
-      <View style={aboutStyles.divider} />
-
-      <View style={aboutStyles.info}>
-        <Text style={aboutStyles.infoText}>📱 Versão 1.0.0</Text>
-        <Text style={aboutStyles.infoText}>⚛️ React Native</Text>
-        <Text style={aboutStyles.infoText}>🚀 Expo Router</Text>
-      </View>
-
-      <View style={aboutStyles.features}>
-        <Text style={aboutStyles.featuresTitle}>Funcionalidades:</Text>
-        <View style={aboutStyles.featureItem}>
-          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
-          <Text style={aboutStyles.featureText}>Adicionar novas tarefas</Text>
-        </View>
-        <View style={aboutStyles.featureItem}>
-          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
-          <Text style={aboutStyles.featureText}>Marcar como concluídas</Text>
-        </View>
-        <View style={aboutStyles.featureItem}>
-          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
-          <Text style={aboutStyles.featureText}>Filtrar por status</Text>
-        </View>
-        <View style={aboutStyles.featureItem}>
-          <Ionicons name="checkmark-circle" size={20} color="#10b981" />
-          <Text style={aboutStyles.featureText}>Excluir tarefas</Text>
-        </View>
-      </View>
-    </ScrollView>
-  );
-}
-
-// Estilos do HomeScreen
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    gap: 12,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1f2937',
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 8,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  filterBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: '#f9fafb',
-    alignItems: 'center',
-  },
-  filterBtnActive: {
-    backgroundColor: '#3b82f6',
-  },
-  filterText: {
-    color: '#1f2937',
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  filterTextActive: {
-    color: '#fff',
-  },
-  list: {
-    padding: 16,
-    gap: 8,
-    flexGrow: 1,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#6b7280',
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
-  },
-  emptySubtext: {
-    textAlign: 'center',
-    color: '#9ca3af',
-    fontSize: 14,
-    marginTop: 8,
-  },
-  todoItem: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  todoContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#3b82f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: '#3b82f6',
-  },
-  checkmark: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  todoTextContainer: {
-    flex: 1,
-  },
-  todoText: {
-    color: '#1f2937',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  todoTextCompleted: {
-    textDecorationLine: 'line-through',
-    color: '#6b7280',
-  },
-  todoDate: {
-    color: '#6b7280',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  deleteBtn: {
-    padding: 8,
-  },
-});
-
-// Estilos do About
-const aboutStyles = StyleSheet.create({
-  container: {
-    flex: 1,
     padding: 20,
-    paddingTop: 60,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    paddingTop: 10,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 32,
+  greeting: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginTop: 15,
+    color: '#1f2937',
+    marginBottom: 4,
   },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 30,
+  date: {
+    fontSize: 14,
+    color: '#6b7280',
+    textTransform: 'capitalize',
   },
-  divider: {
-    width: '80%',
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 20,
-  },
-  info: {
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 30,
-  },
-  infoText: {
-    fontSize: 15,
-    color: '#666',
-  },
-  features: {
-    width: '100%',
-    alignItems: 'flex-start',
-    paddingHorizontal: 20,
-  },
-  featuresTitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 16,
   },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+  quickActionsContainer: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  quickActionsGrid: {
+    gap: 12,
     marginBottom: 12,
   },
-  featureText: {
-    fontSize: 15,
-    color: '#666',
+  quickActionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 16,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  quickActionCardPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
+  },
+  quickActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionText: {
+    flex: 1,
+  },
+  quickActionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 2,
+  },
+  quickActionSubtitle: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  statsContainer: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    gap: 8,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  tipContainer: {
+    margin: 20,
+    marginTop: 10,
+    padding: 16,
+    backgroundColor: '#fffbeb',
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#f59e0b',
+  },
+  tipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  tipTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#92400e',
+  },
+  tipText: {
+    fontSize: 14,
+    color: '#78350f',
+    lineHeight: 20,
   },
 });
-
-export { HomeScreen, About };
