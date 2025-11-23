@@ -36,7 +36,18 @@ export default function SignUpScreen() {
     try {
       setLoading(true);
       await signUp(username, email, password);
-      router.replace('/(tabs)');
+      
+      // ✅ Mostrar mensagem de sucesso e voltar para login
+      Alert.alert(
+        'Cadastro realizado!',
+        'Sua conta foi criada com sucesso. Faça login para continuar.',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(auth)/login'),
+          },
+        ]
+      );
     } catch (error: any) {
       Alert.alert('Erro ao cadastrar', error.message);
     } finally {
