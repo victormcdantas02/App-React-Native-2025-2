@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator, ScrollView, Keyboard } from 'react-native';
 import { useAuthStore } from '@/store/useAuthStore';
 import { router } from 'expo-router';
 import { isValidEmail, isValidUsername, isValidPassword } from '@/utils/validators';
@@ -37,7 +37,6 @@ export default function SignUpScreen() {
       setLoading(true);
       await signUp(username, email, password);
       
-      // ✅ Mostrar mensagem de sucesso e voltar para login
       Alert.alert(
         'Cadastro realizado!',
         'Sua conta foi criada com sucesso. Faça login para continuar.',
@@ -56,7 +55,11 @@ export default function SignUpScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView 
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.card}>
         <Text style={styles.title}>Cadastro</Text>
 
@@ -116,45 +119,42 @@ export default function SignUpScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    paddingVertical: 40,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 32,
-    width: '100%',
+    width: '90%',
     maxWidth: 420,
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 4,
     elevation: 3,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 16,
     textAlign: 'center',
-    marginBottom: 32,
-    color: '#1f2937',
   },
   input: {
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 4,
-    padding: 14,
-    fontSize: 16,
-    marginBottom: 16,
-    color: '#1f2937',
+    borderColor: '#ddd',
+    padding: 12,
+    borderRadius: 6,
+    marginBottom: 12,
+    backgroundColor: '#fff',
   },
   button: {
-    backgroundColor: '#3b82f6',
-    padding: 16,
-    borderRadius: 4,
+    backgroundColor: '#2196F3',
+    padding: 12,
+    borderRadius: 6,
     alignItems: 'center',
     marginTop: 8,
   },
@@ -163,22 +163,18 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 24,
+    marginTop: 12,
   },
   footerText: {
-    color: '#6b7280',
-    fontSize: 14,
+    color: '#666',
   },
   linkText: {
-    color: '#3b82f6',
-    fontSize: 14,
+    color: '#2196F3',
     fontWeight: '600',
   },
 });
