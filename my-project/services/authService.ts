@@ -1,93 +1,108 @@
-import Parse from 'parse/react-native';
+import { PARSE_CONFIG } from '@/config/parseConfig';
 import { SignUpData, LoginData, User } from '@/types/auth.types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const SESSION_TOKEN_KEY = '@session_token';
 
 class AuthService {
+  private async request(method: string, endpoint: string, data?: any, sessionToken?: string) {
+    const headers: Record<string, string> = {
+      'X-Parse-Application-Id': PARSE_CONFIG.applicationId,
+      'X-Parse-JavaScript-Key': PARSE_CONFIG.javascriptKey,
+      'Content-Type': 'application/json',
+    };
+
+    if (sessionToken) {
+      headers['X-Parse-Session-Token'] = sessionToken;
+    }
+
+    const options: RequestInit = {
+      method,
+      headers,
+      ...(data && { body: JSON.stringify(data) }),
+    };
+
+    const response = await fetch(`${PARSE_CONFIG.serverURL}${endpoint}`, options);
+    const json = await response.json();
+
+    if (!response.ok) {
+      throw new Error(json.error || 'Erro na requisição');
+    }
+
+    return json;
+  }
 
   async signUp(data: SignUpData): Promise<User> {
-    try {
-      const user = new Parse.User();
-      user.set('username', data.username);
-      user.set('email', data.email);
-      user.set('password', data.password);
-      if (data.name) user.set('name', data.name);
+    const response = await this.request('POST', '/users', {
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      ...(data.name && { name: data.name }),
+    });
 
-      await user.signUp();
-      return this.toUser(user);
-    } catch (error: any) {
-      throw this.handleError(error);
+    if (response.sessionToken) {
+      await AsyncStorage.setItem(SESSION_TOKEN_KEY, response.sessionToken);
     }
+
+    return {
+      id: response.objectId,
+      username: response.username,
+      email: response.email,
+      name: response.name,
+    };
   }
 
   async login(data: LoginData): Promise<User> {
-    try {
-      const user = await Parse.User.logIn(data.username, data.password);
-      return this.toUser(user);
-    } catch (error: any) {
-      throw this.handleError(error);
+    const response = await this.request(
+      'GET',
+      `/login?username=${encodeURIComponent(data.username)}&password=${encodeURIComponent(data.password)}`
+    );
+
+    if (response.sessionToken) {
+      await AsyncStorage.setItem(SESSION_TOKEN_KEY, response.sessionToken);
     }
+
+    return {
+      id: response.objectId,
+      username: response.username,
+      email: response.email,
+      name: response.name,
+    };
   }
 
   async logout(): Promise<void> {
-    try {
-      await Parse.User.logOut();
-    } catch (error: any) {
-      throw this.handleError(error);
+    const sessionToken = await AsyncStorage.getItem(SESSION_TOKEN_KEY);
+    if (sessionToken) {
+      try {
+        await this.request('POST', '/logout', {}, sessionToken);
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+      }
+      await AsyncStorage.removeItem(SESSION_TOKEN_KEY);
     }
   }
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      const user = Parse.User.current();
-      if (!user) return null;
+      const sessionToken = await AsyncStorage.getItem(SESSION_TOKEN_KEY);
+      if (!sessionToken) return null;
 
-      await user.fetch();
-      return this.toUser(user);
+      const response = await this.request('GET', '/users/me', undefined, sessionToken);
+
+      return {
+        id: response.objectId,
+        username: response.username,
+        email: response.email,
+        name: response.name,
+      };
     } catch (error) {
-      console.error('Erro ao buscar usuário:', error);
+      await AsyncStorage.removeItem(SESSION_TOKEN_KEY);
       return null;
     }
   }
 
   async resetPassword(email: string): Promise<void> {
-    try {
-      await Parse.User.requestPasswordReset(email);
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
-  private toUser(parseUser: Parse.User | any): User {
-    return {
-      id: parseUser.id,
-      username: parseUser.get('username') ?? undefined,
-      email: parseUser.get('email') ?? undefined,
-      name: parseUser.get('name') ?? undefined,
-    };
-  }
-
-  private handleError(error: any): Error {
-    const errorMessages: Record<number, string> = {
-      100: 'Erro de conexão com o servidor',
-      101: 'Usuário ou senha inválidos',
-      102: 'Consulta inválida',
-      103: 'Nome de classe inválido',
-      119: 'Operação não permitida',
-      124: 'Tempo limite excedido',
-      125: 'Email inválido',
-      200: 'Usuário não encontrado',
-      201: 'Senha é obrigatória',
-      202: 'Este nome de usuário já está em uso',
-      203: 'Este email já está em uso',
-      204: 'Email é obrigatório',
-      205: 'Email não encontrado',
-      206: 'Usuário não pode ser alterado',
-      207: 'Você só pode criar usuários através do cadastro',
-      208: 'Conta já vinculada a outro usuário',
-      209: 'Sessão inválida',
-    };
-
-    const message = errorMessages[error.code] || error.message || 'Erro desconhecido';
-    return new Error(message);
+    await this.request('POST', '/requestPasswordReset', { email });
   }
 }
 

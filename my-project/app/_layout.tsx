@@ -1,4 +1,3 @@
-import 'react-native-get-random-values'; 
 import { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
@@ -14,6 +13,7 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+// Inicializa o Parse
 initializeParse();
 
 function RootLayoutNav() {
@@ -21,7 +21,7 @@ function RootLayoutNav() {
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
   const loadUser = useAuthStore((state) => state.loadUser);
-
+  
   const segments = useSegments();
   const router = useRouter();
 
@@ -36,10 +36,8 @@ function RootLayoutNav() {
     const inTabsGroup = segments[0] === '(tabs)';
 
     if (!user && inTabsGroup) {
-
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-
       router.replace('/(tabs)');
     }
   }, [user, loading, segments]);
