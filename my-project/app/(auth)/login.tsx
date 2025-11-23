@@ -65,7 +65,7 @@ export default function LoginScreen() {
         <View style={styles.footer}>
           <Text style={styles.footerText}>Ainda não possui conta? </Text>
           <Pressable 
-            onPress={() => router.push('/signup')}
+            onPress={() => router.push('/(auth)/signup')}
             disabled={loading}
           >
             <Text style={styles.linkText}>Cadastre-se</Text>

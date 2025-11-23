@@ -26,13 +26,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signUp: async (username, email, password, name) => {
-    // Cadastra o usuário
-    const user = await authService.signUp({ username, email, password, name });
+    // ✅ Apenas cadastra, NÃO faz logout
+    await authService.signUp({ username, email, password, name });
     
-    // ✅ Faz logout imediatamente após cadastro
+    // ✅ Faz logout manualmente para limpar a sessão
     await authService.logout();
     
-    // ✅ Limpa o estado (não mantém logado)
+    // ✅ Limpa o estado (usuário não fica logado)
     set({ user: null });
   },
 
