@@ -1,5 +1,17 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator, ScrollView, Keyboard } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  Pressable, 
+  StyleSheet, 
+  Alert, 
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native';
 import { useAuthStore } from '@/store/useAuthStore';
 import { router } from 'expo-router';
 import { isValidEmail, isValidUsername, isValidPassword } from '@/utils/validators';
@@ -55,106 +67,112 @@ export default function SignUpScreen() {
   };
 
   return (
-    <ScrollView 
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>Cadastro</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Cadastro</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Usuário"
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-          editable={!loading}
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Usuário"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              editable={!loading}
+            />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          editable={!loading}
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          editable={!loading}
-        />
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!loading}
+            />
 
-        <Pressable 
-          style={[styles.button, loading && styles.buttonDisabled]} 
-          onPress={handleSignUp}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Cadastrar</Text>
-          )}
-        </Pressable>
+            <Pressable 
+              style={[styles.button, loading && styles.buttonDisabled]} 
+              onPress={handleSignUp}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Cadastrar</Text>
+              )}
+            </Pressable>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Já possui conta? </Text>
-          <Pressable 
-            onPress={() => router.back()}
-            disabled={loading}
-          >
-            <Text style={styles.linkText}>Faça login</Text>
-          </Pressable>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Já possui conta? </Text>
+              <Pressable 
+                onPress={() => router.back()}
+                disabled={loading}
+              >
+                <Text style={styles.linkText}>Faça login</Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
+    padding: 20,
   },
   card: {
-    width: '90%',
-    maxWidth: 420,
     backgroundColor: '#fff',
-    padding: 20,
     borderRadius: 8,
+    padding: 32,
+    width: '100%',
+    maxWidth: 420,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 3,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontSize: 28,
+    fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 32,
+    color: '#1f2937',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 12,
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 4,
+    padding: 14,
+    fontSize: 16,
+    marginBottom: 16,
+    color: '#1f2937',
   },
   button: {
-    backgroundColor: '#2196F3',
-    padding: 12,
-    borderRadius: 6,
+    backgroundColor: '#3b82f6',
+    padding: 16,
+    borderRadius: 4,
     alignItems: 'center',
     marginTop: 8,
   },
@@ -163,18 +181,22 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 12,
+    alignItems: 'center',
+    marginTop: 24,
   },
   footerText: {
-    color: '#666',
+    color: '#6b7280',
+    fontSize: 14,
   },
   linkText: {
-    color: '#2196F3',
+    color: '#3b82f6',
+    fontSize: 14,
     fontWeight: '600',
   },
 });
