@@ -4,7 +4,7 @@ import CalendarView from '@/components/CalendarView';
 
 export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [todos] = useState([]); // Conectar com estado global depois
+  const [todos] = useState([]);
 
   return (
     <ScrollView style={styles.container}>
