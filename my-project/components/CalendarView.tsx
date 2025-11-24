@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
 const colors = {
   card: "#ffffff",
   accent: "#6366F1",
@@ -179,7 +178,7 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
     <View style={styles.wrapper}>
       <View style={styles.header}>
         <Pressable style={styles.navButton} onPress={previousMonth}>
-          <Text style={styles.navText}>←</Text>
+          <Text style={styles.navText}>‹</Text>
         </Pressable>
         <View style={styles.monthInfo}>
           <Text style={styles.monthText}>
@@ -192,7 +191,7 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
           )}
         </View>
         <Pressable style={styles.navButton} onPress={nextMonth}>
-          <Text style={styles.navText}>→</Text>
+           <Text style={styles.navText}>›</Text>
         </Pressable>
       </View>
 
@@ -249,15 +248,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   navButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.accent,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
   },
   navText: {
-    color: "#fff",
+    color: colors.text,
     fontSize: 18,
     fontWeight: "700",
   },
