@@ -32,7 +32,6 @@ const monthNames = [
 ];
 
 const weekdays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-const DAY_WIDTH = `${100 / 7 - 1}%`;
 
 const normalizeDate = (value: any) => {
   if (!value) return null;
@@ -106,14 +105,16 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
     const currentYear = viewDate.getFullYear();
     const currentMonth = viewDate.getMonth();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const dayOfWeek= new Date(currentYear, currentMonth, 1).getDay();
+    const dayOfWeek = new Date(currentYear, currentMonth, 1).getDay();
     const firstDay = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
     const days = [];
 
+    // Dias vazios no início
     for (let i = 0; i < firstDay; i += 1) {
-      days.push(<View key={`empty-${i}`} style={styles.dayPlaceholder} />);
+      days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
     }
 
+    // Dias do mês
     for (let day = 1; day <= daysInMonth; day += 1) {
       const date = new Date(currentYear, currentMonth, day);
       const tasks = todos.filter((todo: any) => todo.data && sameDay(todo.data, date));
@@ -126,33 +127,34 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
       const isFeriado = !!feriado;
 
       days.push(
-        <Pressable
-          key={day}
-          style={[
-            styles.day,
-            tasks.length > 0 && styles.dayHasTasks,
-            isSelected && styles.daySelected,
-            isToday && styles.dayToday,
-            allCompleted && styles.dayCompleted,
-            isFeriado && styles.dayFeriado,
-          ]}
-          onPress={() => handleSelectDay(date)}
-        >
-          <Text
+        <View key={day} style={styles.dayCell}>
+          <Pressable
             style={[
-              styles.dayText,
-              (isSelected || isToday) && { color: "#fff" },
-              isFeriado && !isSelected && !isToday && styles.feriadoText,
+              styles.day,
+              tasks.length > 0 && styles.dayHasTasks,
+              isSelected && styles.daySelected,
+              isToday && styles.dayToday,
+              allCompleted && styles.dayCompleted,
+              isFeriado && styles.dayFeriado,
             ]}
+            onPress={() => handleSelectDay(date)}
           >
-            {day}
-          </Text>
-          {tasks.length > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{completed}/{tasks.length}</Text>
-            </View>
-          )}
-        </Pressable>
+            <Text
+              style={[
+                styles.dayText,
+                (isSelected || isToday) && { color: "#fff" },
+                isFeriado && !isSelected && !isToday && styles.feriadoText,
+              ]}
+            >
+              {day}
+            </Text>
+            {tasks.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{completed}/{tasks.length}</Text>
+              </View>
+            )}
+          </Pressable>
+        </View>
       );
     }
 
@@ -285,32 +287,34 @@ const styles = StyleSheet.create({
   },
   weekdays: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
+    marginBottom: spacing.xs,
   },
   weekdayText: {
     width: `${100 / 7}%`,
     textAlign: "center",
     color: colors.muted,
     fontWeight: "600",
+    fontSize: 12,
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm,
   },
-  dayPlaceholder: {
-    width: DAY_WIDTH,
+  dayCell: {
+    width: `${100 / 7}%`,
     aspectRatio: 1,
+    padding: 2,
   },
   day: {
-    width: DAY_WIDTH,
-    aspectRatio: 1,
+    flex: 1,
+    width: '100%',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radii.sm,
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xs / 2,
+    backgroundColor: "#fff",
   },
   dayHasTasks: {
     backgroundColor: "#fff7ed",
@@ -351,23 +355,28 @@ const styles = StyleSheet.create({
   dayText: {
     fontWeight: "600",
     color: colors.text,
+    fontSize: 14,
   },
   badge: {
     paddingHorizontal: spacing.xs,
     paddingVertical: 2,
     borderRadius: radii.sm,
     backgroundColor: "rgba(0,0,0,0.1)",
+    marginTop: 2,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: 9,
     color: colors.text,
+    fontWeight: "600",
   },
   selectedList: {
     gap: spacing.xs,
+    marginTop: spacing.sm,
   },
   listTitle: {
     fontWeight: "600",
     color: colors.text,
+    fontSize: 16,
   },
   emptyText: {
     color: colors.muted,
