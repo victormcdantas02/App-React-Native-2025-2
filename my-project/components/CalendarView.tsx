@@ -108,12 +108,12 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
     const firstDay = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
     const days = [];
 
-    // Dias vazios no início
+    
     for (let i = 0; i < firstDay; i += 1) {
       days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
     }
 
-    // Dias do mês
+    
     for (let day = 1; day <= daysInMonth; day += 1) {
       const date = new Date(currentYear, currentMonth, day);
       const tasks = todos.filter((todo: any) => todo.data && sameDay(todo.data, date));
@@ -258,6 +258,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  
   navText: {
     color: colors.text,
     fontSize: 18,
