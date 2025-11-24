@@ -31,7 +31,7 @@ const monthNames = [
   "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO",
 ];
 
-const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const weekdays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 const DAY_WIDTH = `${100 / 7 - 1}%`;
 
 const normalizeDate = (value: any) => {
@@ -106,7 +106,8 @@ export default function CalendarView({ selectedDate, todos, onDateSelect }: any)
     const currentYear = viewDate.getFullYear();
     const currentMonth = viewDate.getMonth();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const dayOfWeek= new Date(currentYear, currentMonth, 1).getDay();
+    const firstDay = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
     const days = [];
 
     for (let i = 0; i < firstDay; i += 1) {

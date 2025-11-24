@@ -4,25 +4,21 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function HomeScreen() {
-  const [userName, setUserName] = useState('Usuário');
+  const { user } = useAuthStore();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    loadUserName();
+    
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  const loadUserName = async () => {
-    try {
-      const name = await AsyncStorage.getItem('userName');
-      if (name) setUserName(name.split(' ')[0]); // Primeiro nome
-    } catch (error) {
-      console.error('Erro ao carregar nome:', error);
-    }
-  };
+  const userNameToDisplay = user?.name ? user.name.split(' ')[0] : (user?.username || 'Usuário');
+
+
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
@@ -43,15 +39,15 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header com saudação */}
+        
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>{getGreeting()}, {userName}! 👋</Text>
+            <Text style={styles.greeting}>{getGreeting()}, {userNameToDisplay}! 👋</Text>
             <Text style={styles.date}>{getFormattedDate()}</Text>
           </View>
-        </View>
+        </View> 
 
-        {/* Cards de Ação Rápida */}
+        
         <View style={styles.quickActionsContainer}>
           <Text style={styles.sectionTitle}>Acesso Rápido</Text>
           
@@ -90,7 +86,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Resumo/Estatísticas */}
+        
         <View style={styles.statsContainer}>
           <Text style={styles.sectionTitle}>Resumo</Text>
           
@@ -119,7 +115,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Dicas ou Mensagem Motivacional */}
+       
         <View style={styles.tipContainer}>
           <View style={styles.tipHeader}>
             <Ionicons name="bulb" size={24} color="#f59e0b" />
@@ -134,7 +130,7 @@ export default function HomeScreen() {
   );
 }
 
-// Componente de Card de Ação Rápida
+
 interface QuickActionCardProps {
   icon: any;
   iconColor: string;
@@ -164,7 +160,7 @@ function QuickActionCard({ icon, iconColor, title, subtitle, onPress }: QuickAct
   );
 }
 
-// Componente de Card de Estatística
+
 interface StatCardProps {
   icon: any;
   iconColor: string;
