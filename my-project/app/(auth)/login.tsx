@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator, ImageBackground } from 'react-native';
+
 import { useAuthStore } from '@/store/useAuthStore';
 import { router } from 'expo-router';
+
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
@@ -28,7 +30,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+      <ImageBackground
+        source={require('@/assets/images/background.jpg')}
+        style={styles.container}
+        resizeMode="cover"
+        >
+      <View style={styles.lightOverlay} />
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
 
@@ -72,14 +79,13 @@ export default function LoginScreen() {
           </Pressable>
         </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -143,4 +149,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  lightOverlay: {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  backgroundColor: 'rgba(255, 255, 255, 0.6)', 
+},
+
 });

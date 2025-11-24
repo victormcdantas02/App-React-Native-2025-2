@@ -10,7 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  ImageBackground
 } from 'react-native';
 import { useAuthStore } from '@/store/useAuthStore';
 import { router } from 'expo-router';
@@ -72,7 +73,12 @@ export default function SignUpScreen() {
       style={{ flex: 1 }}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
+        <ImageBackground
+        source={require('@/assets/images/background.jpg')} 
+        style={styles.container}
+        resizeMode="cover"
+      >
+          <View style={styles.lightOverlay} />
           <View style={styles.card}>
             <Text style={styles.title}>Cadastro</Text>
 
@@ -126,7 +132,7 @@ export default function SignUpScreen() {
               </Pressable>
             </View>
           </View>
-        </View>
+        </ImageBackground>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
@@ -135,7 +141,6 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -198,5 +203,13 @@ const styles = StyleSheet.create({
     color: '#3b82f6',
     fontSize: 14,
     fontWeight: '600',
+  },
+    lightOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)', 
   },
 });
